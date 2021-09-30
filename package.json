@@ -1,0 +1,11 @@
+{
+  "devDependencies": {
+    "husky": "^7.0.2",
+		"@commitlint/cli": "^13.1.0",
+		"commitlint-config-jira": "^1.5.1",
+		"commitlint-plugin-jira-rules": "^1.5.1"
+  },
+  "scripts": {
+    "postinstall": "husky install"
+  }
+}
