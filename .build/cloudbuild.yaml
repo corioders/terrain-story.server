@@ -1,0 +1,40 @@
+steps:
+  # Load build frontend and compute tag.
+  - name: 'gcr.io/cloud-builders/gsutil'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |-
+        mkdir /workspace/.cloudbuild
+
+        gsutil cp gs://terrain-story-build-frontend/out${_MODE}.tar.gz out.tar.gz
+        gsutil cp gs://terrain-story-build-frontend/tag${_MODE} /workspace/.cloudbuild/frontend_tag
+
+        tar -x --warning=no-timestamp -f out.tar.gz -C ./src
+
+        # Change timestamp to be NOW.
+        find ./src/out -exec touch {} +
+
+        echo europe-central2-docker.pkg.dev/core-folio-327613/cloud-run-images/server${_MODE} > /workspace/.cloudbuild/name
+        echo server_${TAG_NAME}-frontend_$(cat /workspace/.cloudbuild/frontend_tag) > /workspace/.cloudbuild/tag
+
+  # Build and push server image.
+  - name: 'gcr.io/cloud-builders/docker'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |-
+        cd ./src
+
+        docker build -t $(cat /workspace/.cloudbuild/name):$(cat /workspace/.cloudbuild/tag) .
+        docker push $(cat /workspace/.cloudbuild/name)
+
+  # Release new version of image.
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |-
+        gcloud run deploy server${_MODE} \
+          --port 80  \
+          --allow-unauthenticated --region europe-central2 --image $(cat /workspace/.cloudbuild/name):$(cat /workspace/.cloudbuild/tag)
