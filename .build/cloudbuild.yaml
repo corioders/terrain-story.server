@@ -8,7 +8,7 @@ steps:
         mkdir /workspace/.cloudbuild
 
         gsutil cp gs://terrain-story-build-frontend/out${_MODE}.tar.gz out.tar.gz
-        gsutil cp gs://terrain-story-build-frontend/tag${_MODE} /workspace/.cloudbuild/frontend_tag
+        gsutil cp gs://terrain-story-build-frontend/sha${_MODE} /workspace/.cloudbuild/frontend_sha
 
         tar -x --warning=no-timestamp -f out.tar.gz -C ./src
 
@@ -16,7 +16,7 @@ steps:
         find ./src/out -exec touch {} +
 
         echo europe-central2-docker.pkg.dev/core-folio-327613/cloud-run-images/server${_MODE} > /workspace/.cloudbuild/name
-        echo server_${TAG_NAME}-frontend_$(cat /workspace/.cloudbuild/frontend_tag) > /workspace/.cloudbuild/tag
+        echo server_${SHORT_SHA}-frontend_$(cat /workspace/.cloudbuild/frontend_sha) > /workspace/.cloudbuild/tag
 
   # Build and push server image.
   - name: 'gcr.io/cloud-builders/docker'
