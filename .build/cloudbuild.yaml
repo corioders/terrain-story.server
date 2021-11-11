@@ -1,4 +1,8 @@
 steps:
+  # Update submodules.
+  - name: gcr.io/cloud-builders/git
+    args: ['submodule', 'update', '--init', '--recursive']
+
   # Load build frontend and compute tag.
   - name: 'gcr.io/cloud-builders/gsutil'
     entrypoint: 'bash'
