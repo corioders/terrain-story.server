@@ -39,6 +39,14 @@ steps:
     args:
       - '-c'
       - |-
+
+        if [[ "${_MODE}" == "" ]]; then
+          gcloud run deploy server \
+            --port 80  \
+            --allow-unauthenticated --region europe-central2 --image $(cat /workspace/.cloudbuild/name):$(cat /workspace/.cloudbuild/tag)
+          exit 0
+        fi
+
         gcloud run deploy server${_MODE} \
           --port 80  \
-          --allow-unauthenticated --region europe-central2 --image $(cat /workspace/.cloudbuild/name):$(cat /workspace/.cloudbuild/tag)
+          --region europe-central2 --image $(cat /workspace/.cloudbuild/name):$(cat /workspace/.cloudbuild/tag)
